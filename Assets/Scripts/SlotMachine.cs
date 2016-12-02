@@ -6,10 +6,13 @@ public class SlotMachine : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		
 		// set basic bet text on start
 		this.BetText.text = playerBet.ToString ();
 
-		// this.FirstSlot.sprite = 
+		Debug.Log ("First time: " + Time.time);
+		setTimer (10);
+
 	}
 
 	private int playerMoney = 1000;
@@ -35,9 +38,10 @@ public class SlotMachine : MonoBehaviour {
 	// custom variables
 	public Text BetText, GameResultText, TotalCreditText, WinnerPaidText;
 	public Button spinButton;
+	public Image[] slots;
 	public Sprite[] slotSprites;
-	public Image FirstSlot, SecondSlot, ThirdSlot;
-	//public sprite
+
+	private IEnumerator coroutine;
 
 
 	/* Utility function to show Player Stats */
@@ -153,39 +157,44 @@ public class SlotMachine : MonoBehaviour {
 			if (checkRange(outCome[spin], 1, 27)) {  // 41.5% probability
 				betLine[spin] = "blank";
 				blanks++;
+				ChangeImage (spin, 0);
 			}
 			else if (checkRange(outCome[spin], 28, 37)){ // 15.4% probability
 				betLine[spin] = "Grapes";
 				grapes++;
+				ChangeImage (spin, 1);
 			}
 			else if (checkRange(outCome[spin], 38, 46)){ // 13.8% probability
 				betLine[spin] = "Banana";
 				bananas++;
+				ChangeImage (spin, 2);
 			}
 			else if (checkRange(outCome[spin], 47, 54)){ // 12.3% probability
 				betLine[spin] = "Orange";
 				oranges++;
+				ChangeImage (spin, 3);
 			}
 			else if (checkRange(outCome[spin], 55, 59)){ //  7.7% probability
 				betLine[spin] = "Cherry";
 				cherries++;
+				ChangeImage (spin, 4);
 			}
 			else if (checkRange(outCome[spin], 60, 62)){ //  4.6% probability
 				betLine[spin] = "Bar";
 				bars++;
+				ChangeImage (spin, 5);
 			}
 			else if (checkRange(outCome[spin], 63, 64)){ //  3.1% probability
 				betLine[spin] = "Bell";
 				bells++;
+				ChangeImage (spin, 6);
 			}
 			else if (checkRange(outCome[spin], 65, 65)){ //  1.5% probability
 				betLine[spin] = "Seven";
 				sevens++;
-
+				ChangeImage (spin, 7);
 			}
 
-			// this method change sprite of reel to result sprite
-			ChangeImage (spin, betLine[spin]);
 		}
 		return betLine;
 	}
@@ -278,60 +287,64 @@ public class SlotMachine : MonoBehaviour {
 			// update status message
 			setGameResultText ("GAME OVER");
 			showPlayerStats();
+
+			// add wait functuion here 
+
 			resetAll();
 		}
-		else if (playerBet > playerMoney)
+		else if (checkBet())
 		{
-			setGameResultText ("Decrease Bet");
+
 		}
-		else if (playerBet < 0)
-		{
-			Debug.Log("All bets must be a positive $ amount.");
-		}
-		else if (playerBet <= playerMoney)
+		else if (!checkBet())
 		{
 			spinResult = Reels();
 			fruits = spinResult[0] + " - " + spinResult[1] + " - " + spinResult[2];
-
-			Debug.Log(fruits);
 			determineWinnings();
 			turn++;
 			showPlayerStats();
 		}
-		else
-		{
-			Debug.Log("Please enter a valid bet amount");
-		}
 	}
 
 	// CUSTOM CODE
-	// this method check game result and apply new image to it
-	public void ChangeImage(int slotNumber, string gameResult) {
-		Debug.Log ("Slot: " + (slotNumber + 1) + ". Result: " + gameResult);
-		if (slotNumber == 1) {
-			
-		}
-			
+
+	// this method check game result and set result pictures to slot machine
+	public void ChangeImage(int slotNumber, int spriteNumber) {
+		this.slots[slotNumber].sprite = slotSprites[spriteNumber];			
 	}
 
 	// function to wait some time
-	public void Timeout(int milliseconds) {
-		int timer = 0;
-		while (timer < milliseconds) {
-			//timer += Time.deltaTime;
+	public IEnumerator setTimer(float seconds) {
+		while (true) {
+			yield return new WaitForSeconds (seconds);
+			Debug.Log ("New time: " + Time.time);
 		}
 	}
 
-	// add bet
-//	public void addBet() {
-//		playerBet = playerBet + 10;
-//		Debug.Log ("New bet: " + playerBet);
-//	}
 
 	// set new bet
 	public void SetBet(int newBet) {
 		playerBet = newBet;
 		this.BetText.text = playerBet.ToString ();
+		checkBet ();
+	}
+
+	private bool checkBet() {
+		if (playerBet > playerMoney) {
+			this.spinButton.interactable = false;
+			setGameResultText ("Decrease Bet");
+			return true;
+		} else {
+			this.spinButton.interactable = true;
+			return false;
+		}
+	}
+
+	// hack machine
+	public void hackMachine() {
+		playerMoney = 9999;
+		setGameResultText ("CHEATER!");
+		setTotalCreditText (playerMoney);
 	}
 
 	// set text for game result text field
