@@ -1,5 +1,12 @@
-﻿using UnityEngine;
+﻿// RAD-Assignment5, Sergei #200325005, 2-12-2016. 
+// This mini game "Slot Machine"
+// original code written by Tom
+// add basic animation, sounds, text labels and buttons
+// Good luck in this gambling machine
+// P.S. This machine has cheat button
+using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Audio;
 using System.Collections;
 
 public class SlotMachine : MonoBehaviour {
@@ -9,9 +16,6 @@ public class SlotMachine : MonoBehaviour {
 		
 		// set basic bet text on start
 		this.BetText.text = playerBet.ToString ();
-
-		Debug.Log ("First time: " + Time.time);
-		setTimer (10);
 
 	}
 
@@ -23,7 +27,7 @@ public class SlotMachine : MonoBehaviour {
 	private float winNumber = 0.0f;
 	private float lossNumber = 0.0f;
 	private string[] spinResult;	
-	private string fruits = "";
+	//private string fruits = "";
 	private float winRatio = 0.0f;
 	private float lossRatio = 0.0f;
 	private int grapes = 0;
@@ -40,9 +44,8 @@ public class SlotMachine : MonoBehaviour {
 	public Button spinButton;
 	public Image[] slots;
 	public Sprite[] slotSprites;
-
-	private IEnumerator coroutine;
-
+	// sounds
+	public AudioClip spinSound;
 
 	/* Utility function to show Player Stats */
 	private void showPlayerStats()
@@ -155,42 +158,34 @@ public class SlotMachine : MonoBehaviour {
 			outCome[spin] = Random.Range(1,65);
 
 			if (checkRange(outCome[spin], 1, 27)) {  // 41.5% probability
-				betLine[spin] = "blank";
 				blanks++;
 				ChangeImage (spin, 0);
 			}
 			else if (checkRange(outCome[spin], 28, 37)){ // 15.4% probability
-				betLine[spin] = "Grapes";
 				grapes++;
 				ChangeImage (spin, 1);
 			}
 			else if (checkRange(outCome[spin], 38, 46)){ // 13.8% probability
-				betLine[spin] = "Banana";
 				bananas++;
 				ChangeImage (spin, 2);
 			}
 			else if (checkRange(outCome[spin], 47, 54)){ // 12.3% probability
-				betLine[spin] = "Orange";
 				oranges++;
 				ChangeImage (spin, 3);
 			}
 			else if (checkRange(outCome[spin], 55, 59)){ //  7.7% probability
-				betLine[spin] = "Cherry";
 				cherries++;
 				ChangeImage (spin, 4);
 			}
 			else if (checkRange(outCome[spin], 60, 62)){ //  4.6% probability
-				betLine[spin] = "Bar";
 				bars++;
 				ChangeImage (spin, 5);
 			}
 			else if (checkRange(outCome[spin], 63, 64)){ //  3.1% probability
-				betLine[spin] = "Bell";
 				bells++;
 				ChangeImage (spin, 6);
 			}
 			else if (checkRange(outCome[spin], 65, 65)){ //  1.5% probability
-				betLine[spin] = "Seven";
 				sevens++;
 				ChangeImage (spin, 7);
 			}
@@ -284,13 +279,7 @@ public class SlotMachine : MonoBehaviour {
 
 		if (playerMoney == 0)
 		{
-			// update status message
-			setGameResultText ("GAME OVER");
-			showPlayerStats();
-
-			// add wait functuion here 
-
-			resetAll();
+			StartCoroutine (gameOverTimer ());
 		}
 		else if (checkBet())
 		{
@@ -298,9 +287,8 @@ public class SlotMachine : MonoBehaviour {
 		}
 		else if (!checkBet())
 		{
-			spinResult = Reels();
-			fruits = spinResult[0] + " - " + spinResult[1] + " - " + spinResult[2];
-			determineWinnings();
+			StartCoroutine(setRandomImg());
+			StartCoroutine(setTimer ());
 			turn++;
 			showPlayerStats();
 		}
@@ -313,14 +301,35 @@ public class SlotMachine : MonoBehaviour {
 		this.slots[slotNumber].sprite = slotSprites[spriteNumber];			
 	}
 
-	// function to wait some time
-	public IEnumerator setTimer(float seconds) {
-		while (true) {
-			yield return new WaitForSeconds (seconds);
-			Debug.Log ("New time: " + Time.time);
+	// function to wait some time and then show result
+	public IEnumerator setTimer() {
+			yield return new WaitForSeconds (3.0f);
+			Reels ();
+			determineWinnings();
+	}
+
+	// this function change slot images several times
+	public IEnumerator setRandomImg() {
+		for (float count = 0; count < 10; count++) {
+			this.slots[0].sprite = slotSprites[Random.Range(0,7)];
+			this.slots[1].sprite = slotSprites[Random.Range(0,7)];
+			this.slots[2].sprite = slotSprites[Random.Range(0,7)];
+			yield return new WaitForSeconds(0.3f);
 		}
 	}
 
+	// show game over for 5 seconds
+	public IEnumerator gameOverTimer() {
+			setGameResultText ("GAME OVER");
+			showPlayerStats();
+			yield return new WaitForSeconds (5.0f);
+			resetAll();
+	}
+
+	// play sound coming soon
+	public void SpinSound() {
+		
+	}
 
 	// set new bet
 	public void SetBet(int newBet) {
