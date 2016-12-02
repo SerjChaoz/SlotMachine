@@ -8,6 +8,8 @@ public class SlotMachine : MonoBehaviour {
 	void Start () {
 		// set basic bet text on start
 		this.BetText.text = playerBet.ToString ();
+
+		// this.FirstSlot.sprite = 
 	}
 
 	private int playerMoney = 1000;
@@ -34,6 +36,8 @@ public class SlotMachine : MonoBehaviour {
 	public Text BetText, GameResultText, TotalCreditText, WinnerPaidText;
 	public Button spinButton;
 	public Sprite[] slotSprites;
+	public Image FirstSlot, SecondSlot, ThirdSlot;
+	//public sprite
 
 
 	/* Utility function to show Player Stats */
@@ -304,6 +308,10 @@ public class SlotMachine : MonoBehaviour {
 	// this method check game result and apply new image to it
 	public void ChangeImage(int slotNumber, string gameResult) {
 		Debug.Log ("Slot: " + (slotNumber + 1) + ". Result: " + gameResult);
+		if (slotNumber == 1) {
+			
+		}
+			
 	}
 
 	// function to wait some time
@@ -349,7 +357,7 @@ public class SlotMachine : MonoBehaviour {
  
 	// terminate game
 	public void Exit() {
-		Debug.Log ("App Exit");
+		setGameResultText ("Exit");
 		Application.Quit();
 	}
 }
