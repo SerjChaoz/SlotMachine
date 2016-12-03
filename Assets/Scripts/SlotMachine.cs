@@ -45,7 +45,7 @@ public class SlotMachine : MonoBehaviour {
 	public Image[] slots;
 	public Sprite[] slotSprites;
 	// sounds
-	public AudioClip spinSound;
+	public AudioSource spinSound;
 
 	/* Utility function to show Player Stats */
 	private void showPlayerStats()
@@ -88,6 +88,7 @@ public class SlotMachine : MonoBehaviour {
 		lossNumber = 0;
 		winRatio = 0.0f;
 
+		this.spinButton.interactable = true;
 		setGameResultText ("Welcome");
 		setWinnerPaidText (0);
 		setTotalCreditText(playerMoney);
@@ -287,6 +288,8 @@ public class SlotMachine : MonoBehaviour {
 		}
 		else if (!checkBet())
 		{
+			this.spinButton.interactable = false;
+			this.spinSound.Play();
 			StartCoroutine(setRandomImg());
 			StartCoroutine(setTimer ());
 			turn++;
@@ -306,6 +309,7 @@ public class SlotMachine : MonoBehaviour {
 			yield return new WaitForSeconds (3.0f);
 			Reels ();
 			determineWinnings();
+		    this.spinButton.interactable = true;
 	}
 
 	// this function change slot images several times
@@ -322,6 +326,7 @@ public class SlotMachine : MonoBehaviour {
 	public IEnumerator gameOverTimer() {
 			setGameResultText ("GAME OVER");
 			showPlayerStats();
+			this.spinButton.interactable = false;
 			yield return new WaitForSeconds (5.0f);
 			resetAll();
 	}
